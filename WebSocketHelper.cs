@@ -13,7 +13,6 @@ namespace BlazorWebSocketHelper
 
         public BwsState bwsState = BwsState.Undefined;
 
-
         public bool IsDisposed = false;
 
         public Action<short> OnStateChange { get; set; }
