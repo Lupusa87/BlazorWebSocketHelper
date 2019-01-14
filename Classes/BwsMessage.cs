@@ -12,5 +12,6 @@ namespace BlazorWebSocketHelper.Classes
         public DateTime Date { get; set; }
         public string Message { get; set; }
         public BwsMessageType MessageType { get; set; }
+
     }
 }
