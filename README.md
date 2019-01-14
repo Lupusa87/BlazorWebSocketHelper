@@ -8,6 +8,7 @@ For install use command - **Install-Package BlazorWebSocketHelper -Version 1.0.1
 
 You can use websocket in blazor easy and convenient using this library.
 
+![image](https://raw.githubusercontent.com/Lupusa87/BlazorWebSocketHelper/master/Untitled.png)
 
 
 Usage sample:
