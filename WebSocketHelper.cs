@@ -23,7 +23,8 @@ namespace BlazorWebSocketHelper
 
 
         public List<BwsMessage> Log = new List<BwsMessage>();
-
+        public bool DoLog { get; set; } = true;
+        public int LogMaxCount { get; set; } = 100;
 
         private string _id = BwsFunctions.Cmd_Get_UniqueID();
 
@@ -72,12 +73,37 @@ namespace BlazorWebSocketHelper
             BwsJsInterop.WsAdd(_id, _url, new DotNetObjectRef(this));
         }
 
+
+        private int GetNewIDFromLog()
+        {
+
+            if (Log.Any())
+            {
+                return Log.Max(x => x.ID) + 1;
+            }
+            else
+            {
+                return 1;
+            }
+        }
+
         public void send(string Par_Message)
         {
             if (!string.IsNullOrEmpty(Par_Message))
             {
                 BwsJsInterop.WsSend(_id, Par_Message);
-                Log.Add(new BwsMessage { ID = Log.Count + 1, Date = DateTime.Now, Message = Par_Message, MessageType = BwsMessageType.send });
+
+
+                if (DoLog)
+                {
+                    
+                    Log.Add(new BwsMessage { ID = GetNewIDFromLog(), Date = DateTime.Now, Message = Par_Message, MessageType = BwsMessageType.send });
+                    if (Log.Count > LogMaxCount)
+                    {
+                        Log.RemoveAt(0);
+                    }
+                }
+              
             }
         }
 
@@ -100,20 +126,37 @@ namespace BlazorWebSocketHelper
         [JSInvokable]
         public void InvokeOnMessage(string par_message)
         {
-            Log.Add(new BwsMessage { ID = Log.Count + 1, Date = DateTime.Now, Message = par_message, MessageType = BwsMessageType.received });
 
+            if (DoLog)
+            {
+
+                Log.Add(new BwsMessage { ID = GetNewIDFromLog(), Date = DateTime.Now, Message = par_message, MessageType = BwsMessageType.received });
+
+                if (Log.Count > LogMaxCount)
+                {
+                    Log.RemoveAt(0);
+                }
+            }
+
+            
             OnMessage?.Invoke(par_message);
         }
 
         public void Close()
         {
-            Log = new List<BwsMessage>();
+            if (DoLog)
+            {
+                Log = new List<BwsMessage>();
+            }
             BwsJsInterop.WsClose(_id);
         }
 
         public void Dispose()
         {
-            Log = new List<BwsMessage>();
+            if (DoLog)
+            {
+                Log = new List<BwsMessage>();
+            }
             BwsJsInterop.WsRemove(_id);
             IsDisposed = true;
             GC.SuppressFinalize(this);
