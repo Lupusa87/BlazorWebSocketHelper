@@ -20,15 +20,20 @@ namespace BlazorWebSocketHelper
                 message);
         }
 
-        public static Task<bool> WsAdd(string WsID, string WsUrl, DotNetObjectRef dotnethelper)
+        public static Task<bool> WsAdd(string WsID, string WsUrl, string WsTransportType, DotNetObjectRef dotnethelper)
         {
-            return JSRuntime.Current.InvokeAsync<bool>("BwsJsFunctions.WsAdd", new { WsID, WsUrl, dotnethelper });
+            return JSRuntime.Current.InvokeAsync<bool>("BwsJsFunctions.WsAdd", new { WsID, WsUrl, WsTransportType, dotnethelper });
         }
 
 
         public static Task<bool> WsSend(string WsID, string WsMessage)
         {
             return JSRuntime.Current.InvokeAsync<bool>("BwsJsFunctions.WsSend", new { WsID, WsMessage });
+        }
+
+        public static Task<bool> WsSend(string WsID, byte[] WsMessage)
+        {
+            return JSRuntime.Current.InvokeAsync<bool>("BwsJsFunctions.WsSendBinary", new { WsID, WsMessage });
         }
 
         public static Task<bool> WsClose(string WsID)

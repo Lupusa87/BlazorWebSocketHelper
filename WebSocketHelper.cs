@@ -3,6 +3,7 @@ using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using static BlazorWebSocketHelper.Classes.BwsEnums;
 
@@ -13,11 +14,14 @@ namespace BlazorWebSocketHelper
 
         public BwsState bwsState = BwsState.Undefined;
 
+
+        public BwsTransportType bwsTransportType { get; private set; } = BwsTransportType.String;
+
         public bool IsDisposed = false;
 
         public Action<short> OnStateChange { get; set; }
 
-        public Action<string> OnMessage { get; set; }
+        public Action<object> OnMessage { get; set; }
 
         public Action<string> OnError { get; set; }
 
@@ -32,7 +36,7 @@ namespace BlazorWebSocketHelper
 
         public List<BwsError> BwsError = new List<BwsError>();
 
-
+        private byte[] buffer;
 
         public async Task<string> get_WsStatus()
         {
@@ -43,23 +47,25 @@ namespace BlazorWebSocketHelper
             
         }
 
-        public WebSocketHelper(string Par_URL)
+        public WebSocketHelper(string Par_URL, BwsTransportType Par_TransportType)
         {
-            _initialize(Par_URL);
+            _initialize(Par_URL,Par_TransportType);
         }
 
-        public void Connect(string Par_URL)
+        public void Connect(string Par_URL, BwsTransportType Par_TransportType)
         {
-            _initialize(Par_URL);
+            _initialize(Par_URL, Par_TransportType);
         }
 
 
 
-        private void _initialize(string Par_URL)
+        private void _initialize(string Par_URL, BwsTransportType Par_TransportType)
         {
             if (!string.IsNullOrEmpty(Par_URL))
             {
+                StaticClass.webSocketHelper = this;
                 _url = Par_URL;
+                bwsTransportType = Par_TransportType;
                 _connect();
             }
             else
@@ -70,7 +76,7 @@ namespace BlazorWebSocketHelper
 
         private void _connect()
         {
-            BwsJsInterop.WsAdd(_id, _url, new DotNetObjectRef(this));
+            BwsJsInterop.WsAdd(_id, _url, bwsTransportType.ToString(), new DotNetObjectRef(this));
         }
 
 
@@ -91,13 +97,15 @@ namespace BlazorWebSocketHelper
         {
             if (!string.IsNullOrEmpty(Par_Message))
             {
+
+
                 BwsJsInterop.WsSend(_id, Par_Message);
 
 
                 if (DoLog)
                 {
                     
-                    Log.Add(new BwsMessage { ID = GetNewIDFromLog(), Date = DateTime.Now, Message = Par_Message, MessageType = BwsMessageType.send });
+                    Log.Add(new BwsMessage { ID = GetNewIDFromLog(), Date = DateTime.Now, Message = Par_Message, MessageType = BwsMessageType.send});
                     if (Log.Count > LogMaxCount)
                     {
                         Log.RemoveAt(0);
@@ -107,6 +115,28 @@ namespace BlazorWebSocketHelper
             }
         }
 
+
+        public void send(byte[] Par_Message)
+        {
+            if (Par_Message.Length>0)
+            {
+
+
+                BwsJsInterop.WsSend(_id, Par_Message);
+
+
+                if (DoLog)
+                {
+
+                    Log.Add(new BwsMessage { ID = GetNewIDFromLog(), Date = DateTime.Now, MessageBinary = Par_Message, MessageType = BwsMessageType.send });
+                    if (Log.Count > LogMaxCount)
+                    {
+                        Log.RemoveAt(0);
+                    }
+                }
+
+            }
+        }
 
         [JSInvokable]
         public void InvokeStateChanged(short par_state)
@@ -129,9 +159,9 @@ namespace BlazorWebSocketHelper
 
             if (DoLog)
             {
-
+                
                 Log.Add(new BwsMessage { ID = GetNewIDFromLog(), Date = DateTime.Now, Message = par_message, MessageType = BwsMessageType.received });
-
+                
                 if (Log.Count > LogMaxCount)
                 {
                     Log.RemoveAt(0);
@@ -141,6 +171,26 @@ namespace BlazorWebSocketHelper
             
             OnMessage?.Invoke(par_message);
         }
+
+
+        public void InvokeOnMessageBinary(byte[] par_message)
+        {
+
+            if (DoLog)
+            {
+
+                Log.Add(new BwsMessage { ID = GetNewIDFromLog(), Date = DateTime.Now, MessageBinary = par_message, MessageType = BwsMessageType.received });
+
+                if (Log.Count > LogMaxCount)
+                {
+                    Log.RemoveAt(0);
+                }
+            }
+
+
+            OnMessage?.Invoke(par_message);
+        }
+
 
         public void Close()
         {

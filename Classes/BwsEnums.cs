@@ -13,6 +13,15 @@ namespace BlazorWebSocketHelper.Classes
             received,
         }
 
+
+        public enum BwsTransportType
+        {
+            String,
+            ArrayBuffer,
+            Blob,
+         //   ArrayBufferView,
+        }
+
         public enum BwsState
         {
             Open,

@@ -1,5 +1,29 @@
 var WebSockets_array = [];
 
+//function arrayBufferToBase64(buffer) {
+//    var binary = '';
+//    var bytes = new Uint8Array(buffer);
+//    var len = bytes.byteLength;
+//    for (var i = 0; i < len; i++) {
+//        binary += String.fromCharCode(bytes[i]);
+//    }
+//    return window.btoa(binary);
+//}
+
+
+
+//function base64ToArrayBuffer(base64) {
+//    var binary_string = window.atob(base64);
+//    var len = binary_string.length;
+//    var bytes = new Uint8Array(len);
+//    for (var i = 0; i < len; i++) {
+//        bytes[i] = binary_string.charCodeAt(i);
+//    }
+//    return bytes.buffer;
+//}
+
+
+
 function WsOnOpen(e, dotnethelper) {
     dotnethelper.invokeMethodAsync('InvokeStateChanged', 1);
 }
@@ -9,12 +33,43 @@ function WsOnClose(e, dotnethelper) {
 }
 
 function WsOnError(e, dotnethelper) {
+    console.log("invoked WsOnError - " + e.message);
     dotnethelper.invokeMethodAsync('InvokeOnError', "Connection Error!");
 }
 
 
 function WsOnMessage(e, dotnethelper) {
-    dotnethelper.invokeMethodAsync('InvokeOnMessage', e.data);
+
+    if (e.data instanceof ArrayBuffer) {
+      
+        var allocateArrayMethod = Blazor.platform.findMethod(
+            'BlazorWebSocketHelper',
+            'BlazorWebSocketHelper',
+            'StaticClass',
+            'AllocateArray'
+        );
+
+
+        var dotNetArray = Blazor.platform.callMethod(allocateArrayMethod, null, [Blazor.platform.toDotNetString(e.data.byteLength.toString())]);
+        
+        var arr = Blazor.platform.toUint8Array(dotNetArray);
+
+        arr.set(new Uint8Array(e.data));
+
+        var receiveResponseMethod = Blazor.platform.findMethod(
+            'BlazorWebSocketHelper',
+            'BlazorWebSocketHelper',
+            'StaticClass',
+            'HandleMessageBinary'
+        );
+
+        Blazor.platform.callMethod(receiveResponseMethod, null, [dotNetArray]);
+
+    }
+    else {
+        dotnethelper.invokeMethodAsync('InvokeOnMessage', e.data);
+    }
+
 }
 
 window.BwsJsFunctions = {
@@ -33,12 +88,17 @@ window.BwsJsFunctions = {
 
         obj.dotnethelper.invokeMethodAsync('InvokeStateChanged', 0);
 
+
+        if (obj.wsTransportType === "ArrayBuffer") {
+            b.ws.binaryType = 'arraybuffer';
+        }
+        if (obj.wsTransportType === "Blob") {
+            b.ws.binaryType = 'blob';
+        }
+
+
         b.ws.onopen = function (e) { WsOnOpen(e, obj.dotnethelper); };
-        //b.ws.onopen = function (evt) {
 
-        //    obj.dotnethelper.invokeMethodAsync('InvokeOnOpen', 1);
-
-        //};
         b.ws.onclose = function (e) { WsOnClose(e, obj.dotnethelper); };
         b.ws.onerror = function (e) { WsOnError(e, obj.dotnethelper); };
         b.ws.onmessage = function (e) { WsOnMessage(e, obj.dotnethelper); };
@@ -83,6 +143,26 @@ window.BwsJsFunctions = {
             WebSockets_array[index].ws.send(obj.wsMessage);
             result = true;
             
+        }
+
+        return result;
+    },
+    WsSendBinary: function (obj) {
+        var result = false;
+
+        var index = WebSockets_array.findIndex(x => x.id === obj.wsID);
+     
+        if (index > -1) {
+    
+            var dataLen = obj.wsMessage.length;
+
+            var bytearray = new Uint8Array(dataLen);
+            bytearray.set(obj.wsMessage);
+
+            WebSockets_array[index].ws.send(bytearray.buffer);
+
+            result = true;
+
         }
 
         return result;
