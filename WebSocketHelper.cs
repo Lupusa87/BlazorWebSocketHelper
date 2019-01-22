@@ -233,7 +233,7 @@ namespace BlazorWebSocketHelper
                 switch (bwsTransportType)
                 {
                     case BwsTransportType.Text:
-                        BwsJsInterop.WsSetBinaryType(_id, "undefined");
+                      //  BwsJsInterop.WsSetBinaryType(_id, "null");
                         break;
                     case BwsTransportType.ArrayBuffer:
                         BwsJsInterop.WsSetBinaryType(_id, "arraybuffer");
