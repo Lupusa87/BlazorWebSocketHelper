@@ -15,13 +15,13 @@ namespace BlazorWebSocketHelper
         public BwsState bwsState = BwsState.Undefined;
 
 
-        public BwsTransportType bwsTransportType { get; private set; } = BwsTransportType.String;
+        public BwsTransportType bwsTransportType { get; private set; } = BwsTransportType.Text;
 
         public bool IsDisposed = false;
 
         public Action<short> OnStateChange { get; set; }
 
-        public Action<object> OnMessage { get; set; }
+        public Action<BwsMessage> OnMessage { get; set; }
 
         public Action<string> OnError { get; set; }
 
@@ -77,6 +77,7 @@ namespace BlazorWebSocketHelper
         private void _connect()
         {
             BwsJsInterop.WsAdd(_id, _url, bwsTransportType.ToString(), new DotNetObjectRef(this));
+            _setTransportType();
         }
 
 
@@ -105,7 +106,11 @@ namespace BlazorWebSocketHelper
                 if (DoLog)
                 {
                     
-                    Log.Add(new BwsMessage { ID = GetNewIDFromLog(), Date = DateTime.Now, Message = Par_Message, MessageType = BwsMessageType.send});
+                    Log.Add(new BwsMessage { ID = GetNewIDFromLog(),
+                                             Date = DateTime.Now,
+                                             Message = Par_Message,
+                                             MessageType = BwsMessageType.send,
+                                             TransportType = bwsTransportType});
                     if (Log.Count > LogMaxCount)
                     {
                         Log.RemoveAt(0);
@@ -128,7 +133,11 @@ namespace BlazorWebSocketHelper
                 if (DoLog)
                 {
 
-                    Log.Add(new BwsMessage { ID = GetNewIDFromLog(), Date = DateTime.Now, MessageBinary = Par_Message, MessageType = BwsMessageType.send });
+                    Log.Add(new BwsMessage { ID = GetNewIDFromLog(),
+                                             Date = DateTime.Now,
+                                             MessageBinary = Par_Message,
+                                             MessageType = BwsMessageType.send,
+                                             TransportType = bwsTransportType });
                     if (Log.Count > LogMaxCount)
                     {
                         Log.RemoveAt(0);
@@ -157,10 +166,19 @@ namespace BlazorWebSocketHelper
         public void InvokeOnMessage(string par_message)
         {
 
+            BwsMessage b = new BwsMessage
+            {
+                ID = GetNewIDFromLog(),
+                Date = DateTime.Now,
+                Message = par_message,
+                MessageType = BwsMessageType.received,
+                TransportType = bwsTransportType
+            };
+
             if (DoLog)
             {
                 
-                Log.Add(new BwsMessage { ID = GetNewIDFromLog(), Date = DateTime.Now, Message = par_message, MessageType = BwsMessageType.received });
+                Log.Add(b);
                 
                 if (Log.Count > LogMaxCount)
                 {
@@ -169,17 +187,25 @@ namespace BlazorWebSocketHelper
             }
 
             
-            OnMessage?.Invoke(par_message);
+            OnMessage?.Invoke(b);
         }
 
 
         public void InvokeOnMessageBinary(byte[] par_message)
         {
+            BwsMessage b = new BwsMessage
+            {
+                ID = GetNewIDFromLog(),
+                Date = DateTime.Now,
+                MessageBinary = par_message,
+                MessageType = BwsMessageType.received,
+                TransportType = bwsTransportType
+            };
 
             if (DoLog)
             {
 
-                Log.Add(new BwsMessage { ID = GetNewIDFromLog(), Date = DateTime.Now, MessageBinary = par_message, MessageType = BwsMessageType.received });
+                Log.Add(b);
 
                 if (Log.Count > LogMaxCount)
                 {
@@ -188,11 +214,41 @@ namespace BlazorWebSocketHelper
             }
 
 
-            OnMessage?.Invoke(par_message);
+            OnMessage?.Invoke(b);
+        }
+
+        public void SetTransportType(BwsTransportType par_bwsTransportType)
+        {
+            if (bwsTransportType != par_bwsTransportType)
+            {
+                bwsTransportType = par_bwsTransportType;
+
+                _setTransportType();
+            }
+        }
+
+        private void _setTransportType()
+        {
+
+                switch (bwsTransportType)
+                {
+                    case BwsTransportType.Text:
+                        BwsJsInterop.WsSetBinaryType(_id, "undefined");
+                        break;
+                    case BwsTransportType.ArrayBuffer:
+                        BwsJsInterop.WsSetBinaryType(_id, "arraybuffer");
+                        break;
+                    case BwsTransportType.Blob:
+                        BwsJsInterop.WsSetBinaryType(_id, "blob");
+                        break;
+                    default:
+                        break;
+                }
+            
         }
 
 
-        public void Close()
+            public void Close()
         {
             if (DoLog)
             {

@@ -36,6 +36,12 @@ namespace BlazorWebSocketHelper
             return JSRuntime.Current.InvokeAsync<bool>("BwsJsFunctions.WsSendBinary", new { WsID, WsMessage });
         }
 
+
+        public static Task<bool> WsSetBinaryType(string WsID, string WsBinaryType)
+        {
+            return JSRuntime.Current.InvokeAsync<bool>("BwsJsFunctions.WsSetBinaryType", new { WsID, WsBinaryType });
+        }
+
         public static Task<bool> WsClose(string WsID)
         {
             return JSRuntime.Current.InvokeAsync<bool>("BwsJsFunctions.WsClose", WsID);

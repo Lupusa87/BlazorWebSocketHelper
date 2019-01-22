@@ -16,7 +16,7 @@ namespace BlazorWebSocketHelper.Classes
 
         public enum BwsTransportType
         {
-            String,
+            Text,
             ArrayBuffer,
             Blob,
          //   ArrayBufferView,

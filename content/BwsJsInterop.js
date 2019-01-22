@@ -41,7 +41,7 @@ function WsOnError(e, dotnethelper) {
 function WsOnMessage(e, dotnethelper) {
 
     if (e.data instanceof ArrayBuffer) {
-      
+        //console.log("js invoked WsOnMessage - arraybuffer");
         var allocateArrayMethod = Blazor.platform.findMethod(
             'BlazorWebSocketHelper',
             'BlazorWebSocketHelper',
@@ -67,6 +67,7 @@ function WsOnMessage(e, dotnethelper) {
 
     }
     else {
+        //console.log("js invoked WsOnMessage - text");
         dotnethelper.invokeMethodAsync('InvokeOnMessage', e.data);
     }
 
@@ -88,15 +89,6 @@ window.BwsJsFunctions = {
 
         obj.dotnethelper.invokeMethodAsync('InvokeStateChanged', 0);
 
-
-        if (obj.wsTransportType === "ArrayBuffer") {
-            b.ws.binaryType = 'arraybuffer';
-        }
-        if (obj.wsTransportType === "Blob") {
-            b.ws.binaryType = 'blob';
-        }
-
-
         b.ws.onopen = function (e) { WsOnOpen(e, obj.dotnethelper); };
 
         b.ws.onclose = function (e) { WsOnClose(e, obj.dotnethelper); };
@@ -106,6 +98,20 @@ window.BwsJsFunctions = {
 
 
         return true;
+    },
+    WsSetBinaryType: function (obj) {
+        var result = true;
+        var index = WebSockets_array.findIndex(x => x.id === obj.wsID);
+
+        if (index > -1) {
+            WebSockets_array[index].ws.binaryType = obj.wsBinaryType;
+            //console.log("js invoked WsSetBinaryType - " + obj.wsBinaryType);
+        }
+        else {
+            result = false;
+        }
+
+        return result;
     },
     WsClose: function (WsID) {
         var result = true;
