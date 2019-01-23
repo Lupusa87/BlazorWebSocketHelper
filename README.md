@@ -4,7 +4,7 @@ This repo contains Pure WebSocket library for blazor.
 
 [Project](https://www.nuget.org/packages/BlazorWebSocketHelper/) is available on nuget.
 
-For install use command - **Install-Package BlazorWebSocketHelper -Version 1.0.3**
+For install use command - **Install-Package BlazorWebSocketHelper -Version 1.0.4**
 
 You can use websocket in blazor easy and convenient way using this library.
 
