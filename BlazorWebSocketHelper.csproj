@@ -34,4 +34,10 @@ Third release 1/21/2019</PackageReleaseNotes>
     <PackageReference Include="Microsoft.AspNetCore.Blazor.Build" Version="0.7.0" PrivateAssets="all" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="BlazorWindowHelper">
+      <HintPath>..\BlazorWindowHelper\bin\Debug\netstandard2.0\BlazorWindowHelper.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

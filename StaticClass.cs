@@ -1,7 +1,9 @@
-﻿using Microsoft.JSInterop;
+﻿using BlazorWindowHelper;
+using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace BlazorWebSocketHelper
@@ -14,6 +16,9 @@ namespace BlazorWebSocketHelper
         //https://github.com/aspnet/AspNetCore/blob/master/src/Components/Browser.JS/src/Services/Http.ts
         //https://github.com/aspnet/AspNetCore/blob/master/src/Components/Browser.JS/src/Platform/Mono/MonoPlatform.ts
 
+
+        //1/23/2019 mono unmarshaled fixed fast transfer from  dotnet to js 
+
         //test websocket server
         //http://demos.kaazing.com/echo/
         //https://www.websocket.org/echo.html
@@ -25,9 +30,12 @@ namespace BlazorWebSocketHelper
 
 
         [JSInvokable]
-        public static void HandleMessageBinary(byte[] par_message)
+        public static void HandleMessageBinary(byte[] par_message, string par_str, string par_binaryVisual)
         {
-            webSocketHelper.InvokeOnMessageBinary(par_message);
+            webSocketHelper.InvokeOnMessageBinary(par_message, par_str, par_binaryVisual);
         }
-        }
+
+
+       
+    }
 }

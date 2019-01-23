@@ -1,5 +1,6 @@
 var WebSockets_array = [];
 
+
 function WsOnOpen(e, dotnethelper) {
     dotnethelper.invokeMethodAsync('InvokeStateChanged', 1);
 }
@@ -17,33 +18,40 @@ function WsOnError(e, dotnethelper) {
 function WsOnMessage(e, dotnethelper) {
 
     if (e.data instanceof ArrayBuffer) {
-        //console.log("js invoked WsOnMessage - arraybuffer");
+
+
         var allocateArrayMethod = Blazor.platform.findMethod(
             'BlazorWebSocketHelper',
             'BlazorWebSocketHelper',
             'StaticClass',
             'AllocateArray'
         );
-
-
-        var dotNetArray = Blazor.platform.callMethod(allocateArrayMethod, null, [Blazor.platform.toDotNetString(e.data.byteLength.toString())]);
-        
+       
+        var dotNetArray = Blazor.platform.callMethod(allocateArrayMethod,
+            null,
+            [Blazor.platform.toDotNetString(e.data.byteLength.toString())]);
+       
         var arr = Blazor.platform.toUint8Array(dotNetArray);
-
+       
         arr.set(new Uint8Array(e.data));
-
+       
         var receiveResponseMethod = Blazor.platform.findMethod(
             'BlazorWebSocketHelper',
             'BlazorWebSocketHelper',
             'StaticClass',
             'HandleMessageBinary'
         );
+        
 
-        Blazor.platform.callMethod(receiveResponseMethod, null, [dotNetArray]);
-
+        var a = new TextDecoder("utf-8").decode(e.data);
+        var b = arr.join(", ");
+        Blazor.platform.callMethod(receiveResponseMethod,
+            null,
+            [dotNetArray, Blazor.platform.toDotNetString(a), Blazor.platform.toDotNetString(b)]);
+      
     }
     else {
-        //console.log("js invoked WsOnMessage - text");
+
         dotnethelper.invokeMethodAsync('InvokeOnMessage', e.data);
     }
 
@@ -81,7 +89,6 @@ window.BwsJsFunctions = {
 
         if (index > -1) {
             WebSockets_array[index].ws.binaryType = obj.wsBinaryType;
-            //console.log("js invoked WsSetBinaryType - " + obj.wsBinaryType);
         }
         else {
             result = false;
@@ -117,33 +124,35 @@ window.BwsJsFunctions = {
     },
     WsSend: function (obj) {
         var result = false;
-
+       
         var index = WebSockets_array.findIndex(x => x.id === obj.wsID);
 
         if (index > -1) {
-
+           
             WebSockets_array[index].ws.send(obj.wsMessage);
+           
             result = true;
             
         }
 
         return result;
     },
-    WsSendBinary: function (obj) {
-        var result = false;
+    WsSendBinary: function (id, data) {
+        var result = '';
 
-        var index = WebSockets_array.findIndex(x => x.id === obj.wsID);
-     
+        var index = WebSockets_array.findIndex(x => x.id === Blazor.platform.toJavaScriptString(id));
+       
         if (index > -1) {
-    
-            var dataLen = obj.wsMessage.length;
+            
+            //var dataLen = obj.wsMessage.length;
+            
+            //var bytearray = new Uint8Array(dataLen);
+            
+            //bytearray.set(obj.wsMessage);
+            arr = Blazor.platform.toUint8Array(data);
+            WebSockets_array[index].ws.send(arr);
 
-            var bytearray = new Uint8Array(dataLen);
-            bytearray.set(obj.wsMessage);
-
-            WebSockets_array[index].ws.send(bytearray.buffer);
-
-            result = true;
+            result = Blazor.platform.toDotNetString(arr.join(", "));
 
         }
 
@@ -161,4 +170,5 @@ window.BwsJsFunctions = {
        
         return result;
     },
+   
 };

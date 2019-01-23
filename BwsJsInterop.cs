@@ -1,5 +1,8 @@
+using BlazorWindowHelper;
 using Microsoft.JSInterop;
+using Mono.WebAssembly.Interop;
 using System;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace BlazorWebSocketHelper
@@ -28,12 +31,22 @@ namespace BlazorWebSocketHelper
 
         public static Task<bool> WsSend(string WsID, string WsMessage)
         {
-            return JSRuntime.Current.InvokeAsync<bool>("BwsJsFunctions.WsSend", new { WsID, WsMessage });
+            return JSRuntime.Current.InvokeAsync<bool>("BwsJsFunctions.WsSend", new { WsID, WsMessage});
         }
 
-        public static Task<bool> WsSend(string WsID, byte[] WsMessage)
+        public static string WsSend(string WsID, byte[] WsMessage)
         {
-            return JSRuntime.Current.InvokeAsync<bool>("BwsJsFunctions.WsSendBinary", new { WsID, WsMessage });
+            
+            if (JSRuntime.Current is MonoWebAssemblyJSRuntime mono)
+            {
+                return mono.InvokeUnmarshalled<string, byte[], string>(
+                    "BwsJsFunctions.WsSendBinary",
+                    WsID,
+                    WsMessage);
+            }
+
+            return string.Empty;
+           
         }
 
 
@@ -58,5 +71,10 @@ namespace BlazorWebSocketHelper
             return JSRuntime.Current.InvokeAsync<short>("BwsJsFunctions.WsGetStatus", WsID);
         }
 
+
+        public static Task<bool> EncodeText(string str)
+        {
+            return JSRuntime.Current.InvokeAsync<bool>("BwsJsFunctions.EncodeText", str);
+        }
     }
 }

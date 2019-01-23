@@ -1,4 +1,5 @@
 ﻿using BlazorWebSocketHelper.Classes;
+using BlazorWindowHelper;
 using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
@@ -99,9 +100,7 @@ namespace BlazorWebSocketHelper
             if (!string.IsNullOrEmpty(Par_Message))
             {
 
-
                 BwsJsInterop.WsSend(_id, Par_Message);
-
 
                 if (DoLog)
                 {
@@ -121,13 +120,14 @@ namespace BlazorWebSocketHelper
         }
 
 
-        public void send(byte[] Par_Message)
+        public string send(byte[] Par_Message)
         {
+            string result = string.Empty;
+
             if (Par_Message.Length>0)
             {
 
-
-                BwsJsInterop.WsSend(_id, Par_Message);
+                result = BwsJsInterop.WsSend(_id, Par_Message);
 
 
                 if (DoLog)
@@ -145,6 +145,8 @@ namespace BlazorWebSocketHelper
                 }
 
             }
+
+            return result;
         }
 
         [JSInvokable]
@@ -188,16 +190,20 @@ namespace BlazorWebSocketHelper
 
             
             OnMessage?.Invoke(b);
+
         }
 
 
-        public void InvokeOnMessageBinary(byte[] par_message)
+
+        public void InvokeOnMessageBinary(byte[] data, string par_str, string par_binaryVisual)
         {
             BwsMessage b = new BwsMessage
             {
                 ID = GetNewIDFromLog(),
                 Date = DateTime.Now,
-                MessageBinary = par_message,
+                Message = par_str,
+                MessageBinary = data,
+                MessageBinaryVisual = par_binaryVisual,//string.Join(", ", data),
                 MessageType = BwsMessageType.received,
                 TransportType = bwsTransportType
             };
