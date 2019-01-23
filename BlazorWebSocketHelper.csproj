@@ -14,11 +14,12 @@
     <PackageTags>Blazor</PackageTags>
     <PackageReleaseNotes>First release 1/14/2019
 Second release 1/16/2019
-Third release 1/21/2019</PackageReleaseNotes>
+Third release 1/21/2019
+Release 4 - 1/23/2019</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
-    <AssemblyVersion>1.0.3.0</AssemblyVersion>
-    <FileVersion>1.0.3.0</FileVersion>
-    <Version>1.0.3</Version>
+    <AssemblyVersion>1.0.4.0</AssemblyVersion>
+    <FileVersion>1.0.4.0</FileVersion>
+    <Version>1.0.4</Version>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
@@ -32,12 +33,6 @@ Third release 1/21/2019</PackageReleaseNotes>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Blazor.Browser" Version="0.7.0" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor.Build" Version="0.7.0" PrivateAssets="all" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="BlazorWindowHelper">
-      <HintPath>..\BlazorWindowHelper\bin\Debug\netstandard2.0\BlazorWindowHelper.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>

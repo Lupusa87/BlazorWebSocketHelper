@@ -1,4 +1,3 @@
-using BlazorWindowHelper;
 using Microsoft.JSInterop;
 using Mono.WebAssembly.Interop;
 using System;
