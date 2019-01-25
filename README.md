@@ -1,5 +1,13 @@
 # Blazor WebSocket Helper
 
+
+
+
+**!!!!!!!!!!!! Readme should be updated because it is relevant to version 1.0.1 !!!!!!!!!!!!**
+
+
+
+
 This repo contains Pure WebSocket library for blazor.
 
 [Project](https://www.nuget.org/packages/BlazorWebSocketHelper/) is available on nuget.
