@@ -9,7 +9,8 @@ namespace BlazorWebSocketHelper
 {
     public static class StaticClass
     {
-        public static WebSocketHelper webSocketHelper = null;
+        public static List<WebSocketHelper> webSocketHelpers_List = new List<WebSocketHelper>();
+
         //1/21/2019 after suchiman's recomendation solved problem how to get byte array from js in dotnet
         //https://github.com/aspnet/AspNetCore/blob/master/src/Components/Blazor/Blazor/src/Http/WebAssemblyHttpMessageHandler.cs
         //https://github.com/aspnet/AspNetCore/blob/master/src/Components/Browser.JS/src/Services/Http.ts
@@ -29,9 +30,16 @@ namespace BlazorWebSocketHelper
 
 
         [JSInvokable]
-        public static void HandleMessageBinary(byte[] par_message, string par_str, string par_binaryVisual)
+        public static void HandleMessageBinary(byte[] par_message, string wsID)
         {
-            webSocketHelper.InvokeOnMessageBinary(par_message, par_str, par_binaryVisual);
+           
+            if (webSocketHelpers_List.Any())
+            {
+                if (webSocketHelpers_List.Any(x => x._id.Equals(wsID, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    webSocketHelpers_List.Single(x => x._id.Equals(wsID, StringComparison.InvariantCultureIgnoreCase)).InvokeOnMessageBinary(par_message);
+                }
+            }
         }
 
 

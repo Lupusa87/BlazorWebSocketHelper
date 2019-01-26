@@ -33,18 +33,18 @@ namespace BlazorWebSocketHelper
             return JSRuntime.Current.InvokeAsync<bool>("BwsJsFunctions.WsSend", new { WsID, WsMessage});
         }
 
-        public static string WsSend(string WsID, byte[] WsMessage)
+        public static bool WsSend(string WsID, byte[] WsMessage)
         {
-            
+
             if (JSRuntime.Current is MonoWebAssemblyJSRuntime mono)
             {
-                return mono.InvokeUnmarshalled<string, byte[], string>(
+                return mono.InvokeUnmarshalled<string, byte[], bool>(
                     "BwsJsFunctions.WsSendBinary",
                     WsID,
                     WsMessage);
             }
 
-            return string.Empty;
+            return false;
            
         }
 
@@ -71,9 +71,5 @@ namespace BlazorWebSocketHelper
         }
 
 
-        public static Task<bool> EncodeText(string str)
-        {
-            return JSRuntime.Current.InvokeAsync<bool>("BwsJsFunctions.EncodeText", str);
-        }
     }
 }

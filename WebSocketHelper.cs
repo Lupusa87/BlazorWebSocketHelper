@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using static BlazorWebSocketHelper.Classes.BwsEnums;
 
@@ -15,7 +16,7 @@ namespace BlazorWebSocketHelper
         public BwsState bwsState = BwsState.Undefined;
 
 
-        public BwsTransportType bwsTransportType { get; private set; } = BwsTransportType.Text;
+        public BwsTransportType TransportType { get; private set; } = BwsTransportType.Text;
 
         public bool IsDisposed = false;
 
@@ -30,15 +31,13 @@ namespace BlazorWebSocketHelper
         public bool DoLog { get; set; } = true;
         public int LogMaxCount { get; set; } = 100;
 
-        private string _id = BwsFunctions.Cmd_Get_UniqueID();
+        public string _id { get; private set; } = BwsFunctions.Cmd_Get_UniqueID();
 
         private string _url = string.Empty;
 
         public List<BwsError> BwsError = new List<BwsError>();
 
-        private byte[] buffer;
-
-        public async Task<string> get_WsStatus()
+        public async Task<string> Get_WsStatus()
         {
             
             short a = await BwsJsInterop.WsGetStatus(_id);
@@ -52,20 +51,14 @@ namespace BlazorWebSocketHelper
             _initialize(Par_URL,Par_TransportType);
         }
 
-        public void Connect(string Par_URL, BwsTransportType Par_TransportType)
-        {
-            _initialize(Par_URL, Par_TransportType);
-        }
-
-
 
         private void _initialize(string Par_URL, BwsTransportType Par_TransportType)
         {
             if (!string.IsNullOrEmpty(Par_URL))
             {
-                StaticClass.webSocketHelper = this;
+                StaticClass.webSocketHelpers_List.Add(this);
                 _url = Par_URL;
-                bwsTransportType = Par_TransportType;
+                TransportType = Par_TransportType;
                 _connect();
             }
             else
@@ -76,7 +69,7 @@ namespace BlazorWebSocketHelper
 
         private void _connect()
         {
-            BwsJsInterop.WsAdd(_id, _url, bwsTransportType.ToString(), new DotNetObjectRef(this));
+            BwsJsInterop.WsAdd(_id, _url, TransportType.ToString(), new DotNetObjectRef(this));
             _setTransportType();
         }
 
@@ -94,21 +87,21 @@ namespace BlazorWebSocketHelper
             }
         }
 
-        public void send(string Par_Message)
+        public void Send(string Par_Message, bool AddToLog = true)
         {
             if (!string.IsNullOrEmpty(Par_Message))
             {
 
                 BwsJsInterop.WsSend(_id, Par_Message);
 
-                if (DoLog)
+                if (DoLog && AddToLog)
                 {
                     
                     Log.Add(new BwsMessage { ID = GetNewIDFromLog(),
                                              Date = DateTime.Now,
                                              Message = Par_Message,
                                              MessageType = BwsMessageType.send,
-                                             TransportType = bwsTransportType});
+                                             TransportType = TransportType});
                     if (Log.Count > LogMaxCount)
                     {
                         Log.RemoveAt(0);
@@ -119,24 +112,24 @@ namespace BlazorWebSocketHelper
         }
 
 
-        public string send(byte[] Par_Message)
+        public void Send(byte[] Par_Message, bool AddToLog = true)
         {
-            string result = string.Empty;
+            
 
             if (Par_Message.Length>0)
             {
 
-                result = BwsJsInterop.WsSend(_id, Par_Message);
+                BwsJsInterop.WsSend(_id, Par_Message);
 
 
-                if (DoLog)
+                if (DoLog && AddToLog)
                 {
 
                     Log.Add(new BwsMessage { ID = GetNewIDFromLog(),
                                              Date = DateTime.Now,
                                              MessageBinary = Par_Message,
                                              MessageType = BwsMessageType.send,
-                                             TransportType = bwsTransportType });
+                                             TransportType = TransportType });
                     if (Log.Count > LogMaxCount)
                     {
                         Log.RemoveAt(0);
@@ -145,7 +138,7 @@ namespace BlazorWebSocketHelper
 
             }
 
-            return result;
+          
         }
 
         [JSInvokable]
@@ -173,7 +166,7 @@ namespace BlazorWebSocketHelper
                 Date = DateTime.Now,
                 Message = par_message,
                 MessageType = BwsMessageType.received,
-                TransportType = bwsTransportType
+                TransportType = TransportType
             };
 
             if (DoLog)
@@ -194,17 +187,18 @@ namespace BlazorWebSocketHelper
 
 
 
-        public void InvokeOnMessageBinary(byte[] data, string par_str, string par_binaryVisual)
+        public void InvokeOnMessageBinary(byte[] data)
         {
+
             BwsMessage b = new BwsMessage
             {
                 ID = GetNewIDFromLog(),
                 Date = DateTime.Now,
-                Message = par_str,
+                Message = Encoding.UTF8.GetString(data),
                 MessageBinary = data,
-                MessageBinaryVisual = par_binaryVisual,//string.Join(", ", data),
+                MessageBinaryVisual = string.Join(", ", data),
                 MessageType = BwsMessageType.received,
-                TransportType = bwsTransportType
+                TransportType = TransportType
             };
 
             if (DoLog)
@@ -224,9 +218,9 @@ namespace BlazorWebSocketHelper
 
         public void SetTransportType(BwsTransportType par_bwsTransportType)
         {
-            if (bwsTransportType != par_bwsTransportType)
+            if (TransportType != par_bwsTransportType)
             {
-                bwsTransportType = par_bwsTransportType;
+                TransportType = par_bwsTransportType;
 
                 _setTransportType();
             }
@@ -235,10 +229,9 @@ namespace BlazorWebSocketHelper
         private void _setTransportType()
         {
 
-                switch (bwsTransportType)
+                switch (TransportType)
                 {
                     case BwsTransportType.Text:
-                      //  BwsJsInterop.WsSetBinaryType(_id, "null");
                         break;
                     case BwsTransportType.ArrayBuffer:
                         BwsJsInterop.WsSetBinaryType(_id, "arraybuffer");
@@ -253,7 +246,7 @@ namespace BlazorWebSocketHelper
         }
 
 
-            public void Close()
+        public void Close()
         {
             if (DoLog)
             {
@@ -268,7 +261,13 @@ namespace BlazorWebSocketHelper
             {
                 Log = new List<BwsMessage>();
             }
+
+
+            InvokeStateChanged(2);
+
             BwsJsInterop.WsRemove(_id);
+
+
             IsDisposed = true;
             GC.SuppressFinalize(this);
         }

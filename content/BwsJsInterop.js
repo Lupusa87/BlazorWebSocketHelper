@@ -1,25 +1,25 @@
 var WebSockets_array = [];
 
 
-function WsOnOpen(e, dotnethelper) {
+function WsOnOpen(e, wsID, dotnethelper) {
     dotnethelper.invokeMethodAsync('InvokeStateChanged', 1);
 }
 
-function WsOnClose(e, dotnethelper) {
+function WsOnClose(e, wsID, dotnethelper) {
     dotnethelper.invokeMethodAsync('InvokeStateChanged', 3);
 }
 
-function WsOnError(e, dotnethelper) {
+function WsOnError(e, wsID, dotnethelper) {
     console.log("invoked WsOnError - " + e.message);
     dotnethelper.invokeMethodAsync('InvokeOnError', "Connection Error!");
 }
 
 
-function WsOnMessage(e, dotnethelper) {
-
+function WsOnMessage(e, wsID, dotnethelper) {
+   
     if (e.data instanceof ArrayBuffer) {
 
-
+        
         var allocateArrayMethod = Blazor.platform.findMethod(
             'BlazorWebSocketHelper',
             'BlazorWebSocketHelper',
@@ -30,11 +30,11 @@ function WsOnMessage(e, dotnethelper) {
         var dotNetArray = Blazor.platform.callMethod(allocateArrayMethod,
             null,
             [Blazor.platform.toDotNetString(e.data.byteLength.toString())]);
-       
+    
         var arr = Blazor.platform.toUint8Array(dotNetArray);
-       
+      
         arr.set(new Uint8Array(e.data));
-       
+      
         var receiveResponseMethod = Blazor.platform.findMethod(
             'BlazorWebSocketHelper',
             'BlazorWebSocketHelper',
@@ -42,13 +42,11 @@ function WsOnMessage(e, dotnethelper) {
             'HandleMessageBinary'
         );
         
-
-        var a = new TextDecoder("utf-8").decode(e.data);
-        var b = arr.join(", ");
+       
         Blazor.platform.callMethod(receiveResponseMethod,
             null,
-            [dotNetArray, Blazor.platform.toDotNetString(a), Blazor.platform.toDotNetString(b)]);
-      
+            [dotNetArray, Blazor.platform.toDotNetString(wsID)]);
+     
     }
     else {
 
@@ -73,11 +71,11 @@ window.BwsJsFunctions = {
 
         obj.dotnethelper.invokeMethodAsync('InvokeStateChanged', 0);
 
-        b.ws.onopen = function (e) { WsOnOpen(e, obj.dotnethelper); };
+        b.ws.onopen = function (e) { WsOnOpen(e, obj.wsID, obj.dotnethelper); };
 
-        b.ws.onclose = function (e) { WsOnClose(e, obj.dotnethelper); };
-        b.ws.onerror = function (e) { WsOnError(e, obj.dotnethelper); };
-        b.ws.onmessage = function (e) { WsOnMessage(e, obj.dotnethelper); };
+        b.ws.onclose = function (e) { WsOnClose(e, obj.wsID, obj.dotnethelper); };
+        b.ws.onerror = function (e) { WsOnError(e, obj.wsID, obj.dotnethelper); };
+        b.ws.onmessage = function (e) { WsOnMessage(e, obj.wsID, obj.dotnethelper); };
         WebSockets_array.push(b);
 
 
@@ -138,21 +136,16 @@ window.BwsJsFunctions = {
         return result;
     },
     WsSendBinary: function (id, data) {
-        var result = '';
+        var result = false;
 
         var index = WebSockets_array.findIndex(x => x.id === Blazor.platform.toJavaScriptString(id));
        
         if (index > -1) {
             
-            //var dataLen = obj.wsMessage.length;
-            
-            //var bytearray = new Uint8Array(dataLen);
-            
-            //bytearray.set(obj.wsMessage);
             arr = Blazor.platform.toUint8Array(data);
             WebSockets_array[index].ws.send(arr);
 
-            result = Blazor.platform.toDotNetString(arr.join(", "));
+            result = true;
 
         }
 
