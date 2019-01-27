@@ -15,11 +15,12 @@
     <PackageReleaseNotes>First release 1/14/2019
 Second release 1/16/2019
 Third release 1/21/2019
-Release 4 - 1/23/2019</PackageReleaseNotes>
+Release 4 - 1/23/2019
+Release 5 - 1/25/2019</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
-    <AssemblyVersion>1.0.4.0</AssemblyVersion>
-    <FileVersion>1.0.4.0</FileVersion>
-    <Version>1.0.4</Version>
+    <AssemblyVersion>1.0.5.0</AssemblyVersion>
+    <FileVersion>1.0.5.0</FileVersion>
+    <Version>1.0.5</Version>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 

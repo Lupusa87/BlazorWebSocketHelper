@@ -141,7 +141,14 @@ window.BwsJsFunctions = {
         var index = WebSockets_array.findIndex(x => x.id === Blazor.platform.toJavaScriptString(id));
        
         if (index > -1) {
-            
+
+
+            //var dataLen = obj.wsMessage.length;
+
+            //var bytearray = new Uint8Array(dataLen);
+
+            //bytearray.set(obj.wsMessage);
+
             arr = Blazor.platform.toUint8Array(data);
             WebSockets_array[index].ws.send(arr);
 
