@@ -20,9 +20,9 @@
       Release 6 - 2/7/2019 update to 0.8.0
     </PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
-    <AssemblyVersion>1.0.6.0</AssemblyVersion>
-    <FileVersion>1.0.6.0</FileVersion>
-    <Version>1.0.6</Version>
+    <AssemblyVersion>1.0.7.0</AssemblyVersion>
+    <FileVersion>1.0.7.0</FileVersion>
+    <Version>1.0.7-preview4</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
