@@ -51,9 +51,10 @@ namespace BlazorWebSocketHelper
 
         public WebSocketHelper(string Par_URL, BwsTransportType Par_TransportType, IJSRuntime jsRuntime)
         {
-            _initialize(Par_URL,Par_TransportType);
+            _JSRuntime = jsRuntime ??
+                throw new ArgumentNullException($"{nameof(jsRuntime)} missing. Try injecting it in your component, then passing it from OnAfterRender.");
 
-            _JSRuntime = jsRuntime;
+            _initialize(Par_URL, Par_TransportType);
         }
 
         private void _initialize(string Par_URL, BwsTransportType Par_TransportType)
