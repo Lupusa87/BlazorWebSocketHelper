@@ -1,4 +1,5 @@
 ﻿using BlazorWebSocketHelper.Classes;
+using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
@@ -40,17 +41,21 @@ namespace BlazorWebSocketHelper
         public async Task<string> Get_WsStatus()
         {
             
-            short a = await BwsJsInterop.WsGetStatus(_id);
+            short a = await new BwsJsInterop(_JSRuntime).WsGetStatus(_id);
 
             return BwsFunctions.ConvertStatus(a).ToString();
             
         }
 
-        public WebSocketHelper(string Par_URL, BwsTransportType Par_TransportType)
-        {
-            _initialize(Par_URL,Par_TransportType);
-        }
+        private IJSRuntime _JSRuntime;
 
+        public WebSocketHelper(string Par_URL, BwsTransportType Par_TransportType, IJSRuntime jsRuntime)
+        {
+            _JSRuntime = jsRuntime ??
+                throw new ArgumentNullException($"{nameof(jsRuntime)} missing. Try injecting it in your component, then passing it from OnAfterRender.");
+
+            _initialize(Par_URL, Par_TransportType);
+        }
 
         private void _initialize(string Par_URL, BwsTransportType Par_TransportType)
         {
@@ -69,7 +74,7 @@ namespace BlazorWebSocketHelper
 
         private void _connect()
         {
-            BwsJsInterop.WsAdd(_id, _url, TransportType.ToString(), new DotNetObjectRef(this));
+            new BwsJsInterop(_JSRuntime).WsAdd(_id, _url, TransportType.ToString(), new DotNetObjectRef(this));
             _setTransportType();
         }
 
@@ -92,7 +97,7 @@ namespace BlazorWebSocketHelper
             if (!string.IsNullOrEmpty(Par_Message))
             {
 
-                BwsJsInterop.WsSend(_id, Par_Message);
+                new BwsJsInterop(_JSRuntime).WsSend(_id, Par_Message);
 
                 if (DoLog && AddToLog)
                 {
@@ -119,7 +124,7 @@ namespace BlazorWebSocketHelper
             if (Par_Message.Length>0)
             {
 
-                BwsJsInterop.WsSend(_id, Par_Message);
+                new BwsJsInterop(_JSRuntime).WsSend(_id, Par_Message);
 
 
                 if (DoLog && AddToLog)
@@ -234,10 +239,10 @@ namespace BlazorWebSocketHelper
                     case BwsTransportType.Text:
                         break;
                     case BwsTransportType.ArrayBuffer:
-                        BwsJsInterop.WsSetBinaryType(_id, "arraybuffer");
+                        new BwsJsInterop(_JSRuntime).WsSetBinaryType(_id, "arraybuffer");
                         break;
                     case BwsTransportType.Blob:
-                        BwsJsInterop.WsSetBinaryType(_id, "blob");
+                        new BwsJsInterop(_JSRuntime).WsSetBinaryType(_id, "blob");
                         break;
                     default:
                         break;
@@ -252,7 +257,7 @@ namespace BlazorWebSocketHelper
             {
                 Log = new List<BwsMessage>();
             }
-            BwsJsInterop.WsClose(_id);
+            new BwsJsInterop(_JSRuntime).WsClose(_id);
         }
 
         public void Dispose()
@@ -265,7 +270,7 @@ namespace BlazorWebSocketHelper
 
             InvokeStateChanged(2);
 
-            BwsJsInterop.WsRemove(_id);
+            new BwsJsInterop(_JSRuntime).WsRemove(_id);
 
 
             IsDisposed = true;

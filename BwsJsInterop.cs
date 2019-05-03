@@ -8,35 +8,37 @@ namespace BlazorWebSocketHelper
 {
     public class BwsJsInterop
     {
-        public static Task<string> Alert(string message)
+        private IJSRuntime _JSRuntime;
+        public BwsJsInterop(IJSRuntime jsRuntime) => _JSRuntime = jsRuntime;
+
+        public Task<string> Alert(string message)
         {
-            return JSRuntime.Current.InvokeAsync<string>(
+            return _JSRuntime.InvokeAsync<string>(
                 "BwsJsFunctions.alert",
                 message);
         }
 
-        public static Task<string> Prompt(string message)
+        public Task<string> Prompt(string message)
         {
-            return JSRuntime.Current.InvokeAsync<string>(
+            return _JSRuntime.InvokeAsync<string>(
                 "BwsJsFunctions.showPrompt",
                 message);
         }
 
-        public static Task<bool> WsAdd(string WsID, string WsUrl, string WsTransportType, DotNetObjectRef dotnethelper)
+        public Task<bool> WsAdd(string WsID, string WsUrl, string WsTransportType, DotNetObjectRef dotnethelper)
         {
-            return JSRuntime.Current.InvokeAsync<bool>("BwsJsFunctions.WsAdd", new { WsID, WsUrl, WsTransportType, dotnethelper });
+            return _JSRuntime.InvokeAsync<bool>("BwsJsFunctions.WsAdd", new { WsID, WsUrl, WsTransportType, dotnethelper });
         }
 
 
-        public static Task<bool> WsSend(string WsID, string WsMessage)
+        public Task<bool> WsSend(string WsID, string WsMessage)
         {
-            return JSRuntime.Current.InvokeAsync<bool>("BwsJsFunctions.WsSend", new { WsID, WsMessage});
+            return _JSRuntime.InvokeAsync<bool>("BwsJsFunctions.WsSend", new { WsID, WsMessage});
         }
 
-        public static bool WsSend(string WsID, byte[] WsMessage)
+        public bool WsSend(string WsID, byte[] WsMessage)
         {
-
-            if (JSRuntime.Current is MonoWebAssemblyJSRuntime mono)
+            if (_JSRuntime is MonoWebAssemblyJSRuntime mono)
             {
                 return mono.InvokeUnmarshalled<string, byte[], bool>(
                     "BwsJsFunctions.WsSendBinary",
@@ -45,29 +47,27 @@ namespace BlazorWebSocketHelper
             }
 
             return false;
-           
+        }
+
+        public Task<bool> WsSetBinaryType(string WsID, string WsBinaryType)
+        {
+            return _JSRuntime.InvokeAsync<bool>("BwsJsFunctions.WsSetBinaryType", new { WsID, WsBinaryType });
+        }
+
+        public Task<bool> WsClose(string WsID)
+        {
+            return _JSRuntime.InvokeAsync<bool>("BwsJsFunctions.WsClose", WsID);
+        }
+
+        public Task<bool> WsRemove(string WsID)
+        {
+            return _JSRuntime.InvokeAsync<bool>("BwsJsFunctions.WsRemove", WsID);
         }
 
 
-        public static Task<bool> WsSetBinaryType(string WsID, string WsBinaryType)
+        public Task<short> WsGetStatus(string WsID)
         {
-            return JSRuntime.Current.InvokeAsync<bool>("BwsJsFunctions.WsSetBinaryType", new { WsID, WsBinaryType });
-        }
-
-        public static Task<bool> WsClose(string WsID)
-        {
-            return JSRuntime.Current.InvokeAsync<bool>("BwsJsFunctions.WsClose", WsID);
-        }
-
-        public static Task<bool> WsRemove(string WsID)
-        {
-            return JSRuntime.Current.InvokeAsync<bool>("BwsJsFunctions.WsRemove", WsID);
-        }
-
-
-        public static Task<short> WsGetStatus(string WsID)
-        {
-            return JSRuntime.Current.InvokeAsync<short>("BwsJsFunctions.WsGetStatus", WsID);
+            return _JSRuntime.InvokeAsync<short>("BwsJsFunctions.WsGetStatus", WsID);
         }
 
 
