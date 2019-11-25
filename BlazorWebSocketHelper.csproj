@@ -34,9 +34,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.Browser" Version="3.0.0-preview4-19216-03" />
-    <PackageReference Include="Microsoft.AspNetCore.Blazor.Build" Version="3.0.0-preview4-19216-03" PrivateAssets="all" />
-    <PackageReference Include="Mono.WebAssembly.Interop" Version="0.8.0-preview1-20181126.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="3.1.0-preview3.19555.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Blazor.Build" Version="3.1.0-preview3.19555.2" PrivateAssets="all" />
+    <PackageReference Include="Mono.WebAssembly.Interop" Version="3.1.0-preview3.19553.2" />
   </ItemGroup>
 
 </Project>
