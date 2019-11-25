@@ -74,7 +74,7 @@ namespace BlazorWebSocketHelper
 
         private void _connect()
         {
-            new BwsJsInterop(_JSRuntime).WsAdd(_id, _url, TransportType.ToString(), new DotNetObjectRef(this));
+            new BwsJsInterop(_JSRuntime).WsAdd(_id, _url, TransportType.ToString(), DotNetObjectReference.Create(this));
             _setTransportType();
         }
 
