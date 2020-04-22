@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <OutputType>Library</OutputType>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <RazorLangVersion>3.0</RazorLangVersion>
+    
     <IsPackable>true</IsPackable>
-    <LangVersion>7.3</LangVersion>
     <Authors>Lupusa</Authors>
     <Company>Lupusa</Company>
     <Description>This package contains websocket helper class for blazor.</Description>
@@ -27,16 +27,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- .js/.css files will be referenced via <script>/<link> tags; other content files will just be included in the app's 'dist' directory without any tags referencing them -->
-    <EmbeddedResource Include="content\**\*.js" LogicalName="blazor:js:%(RecursiveDir)%(Filename)%(Extension)" />
-    <EmbeddedResource Include="content\**\*.css" LogicalName="blazor:css:%(RecursiveDir)%(Filename)%(Extension)" />
-    <EmbeddedResource Include="content\**" Exclude="**\*.js;**\*.css" LogicalName="blazor:file:%(RecursiveDir)%(Filename)%(Extension)" />
+    <None Include="wwwroot\BwsJsInterop.js" />
   </ItemGroup>
 
+
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="3.1.0-preview3.19555.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Blazor.Build" Version="3.1.0-preview3.19555.2" PrivateAssets="all" />
-    <PackageReference Include="Mono.WebAssembly.Interop" Version="3.1.0-preview3.19553.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Components" Version="5.0.0-preview.2.20167.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="5.0.0-preview.2.20167.3" />
+    <PackageReference Include="Mono.WebAssembly.Interop" Version="5.0.0-preview.2.20167.3" />
   </ItemGroup>
 
 </Project>
