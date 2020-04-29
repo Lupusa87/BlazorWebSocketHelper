@@ -1,4 +1,5 @@
 ﻿using Microsoft.JSInterop;
+using Mono.WebAssembly.Interop;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,8 @@ namespace BlazorWebSocketHelper
     public static class StaticClass
     {
         public static List<WebSocketHelper> webSocketHelpers_List = new List<WebSocketHelper>();
+
+        public static MonoWebAssemblyJSRuntime monoWebAssemblyJSRuntime = new MonoWebAssemblyJSRuntime();
 
         //1/21/2019 after suchiman's recomendation solved problem how to get byte array from js in dotnet
         //https://github.com/aspnet/AspNetCore/blob/master/src/Components/Blazor/Blazor/src/Http/WebAssemblyHttpMessageHandler.cs
@@ -23,9 +26,15 @@ namespace BlazorWebSocketHelper
         //http://demos.kaazing.com/echo/
         //https://www.websocket.org/echo.html
         [JSInvokable]
-        public static byte[] AllocateArray(string length)
+        public static void AllocateArray(int length, string a)
         {
-            return new byte[int.Parse(length)];
+           
+            byte[] b = new byte[length];
+
+            monoWebAssemblyJSRuntime.InvokeUnmarshalled<byte[], bool>("BwsJsFunctions.GetBinaryData", b);
+
+            HandleMessageBinary(b, a);
+
         }
 
 
@@ -45,4 +54,6 @@ namespace BlazorWebSocketHelper
 
        
     }
+
+
 }

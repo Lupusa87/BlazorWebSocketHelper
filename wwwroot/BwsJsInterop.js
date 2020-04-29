@@ -1,5 +1,7 @@
 var WebSockets_array = [];
 
+var tmpValue1;
+
 
 function WsOnOpen(e, wsID, dotnethelper) {
     dotnethelper.invokeMethodAsync('InvokeStateChanged', 1);
@@ -19,34 +21,11 @@ function WsOnMessage(e, wsID, dotnethelper) {
    
     if (e.data instanceof ArrayBuffer) {
 
-        
-        var allocateArrayMethod = Blazor.platform.findMethod(
-            'BlazorWebSocketHelper',
-            'BlazorWebSocketHelper',
-            'StaticClass',
-            'AllocateArray'
-        );
-       
-        var dotNetArray = Blazor.platform.callMethod(allocateArrayMethod,
-            null,
-            [Blazor.platform.toDotNetString(e.data.byteLength.toString())]);
-    
-        var arr = Blazor.platform.toUint8Array(dotNetArray);
-      
-        arr.set(new Uint8Array(e.data));
-      
-        var receiveResponseMethod = Blazor.platform.findMethod(
-            'BlazorWebSocketHelper',
-            'BlazorWebSocketHelper',
-            'StaticClass',
-            'HandleMessageBinary'
-        );
-        
-       
-        Blazor.platform.callMethod(receiveResponseMethod,
-            null,
-            [dotNetArray, Blazor.platform.toDotNetString(wsID)]);
-     
+        tmpValue1 = e.data;
+
+        Module.mono_call_static_method('[BlazorWebSocketHelper] BlazorWebSocketHelper.StaticClass:AllocateArray',
+            [e.data.byteLength, wsID]);
+
     }
     else {
 
@@ -138,7 +117,7 @@ window.BwsJsFunctions = {
     WsSendBinary: function (id, data) {
         var result = false;
 
-        var index = WebSockets_array.findIndex(x => x.id === Blazor.platform.toJavaScriptString(id));
+        var index = WebSockets_array.findIndex(x => x.id === BINDING.conv_string(id));
        
         if (index > -1) {
 
@@ -170,5 +149,12 @@ window.BwsJsFunctions = {
        
         return result;
     },
-   
+    GetBinaryData: function (d) {
+
+        var destinationUint8Array = Blazor.platform.toUint8Array(d);
+        destinationUint8Array.set(new Uint8Array(tmpValue1));
+
+        tmpValue1 = null;
+        return true;
+    },
 };

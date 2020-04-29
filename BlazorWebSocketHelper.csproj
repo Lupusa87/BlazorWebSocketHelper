@@ -4,26 +4,18 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <RazorLangVersion>3.0</RazorLangVersion>
     
-    <IsPackable>true</IsPackable>
     <Authors>Lupusa</Authors>
     <Company>Lupusa</Company>
     <Description>This package contains websocket helper class for blazor.</Description>
     <RepositoryUrl>https://github.com/Lupusa87/BlazorWebSocketHelper</RepositoryUrl>
     <RepositoryType>Github</RepositoryType>
     <PackageTags>Blazor</PackageTags>
-    <PackageReleaseNotes>
-      First release 1/14/2019
-      Second release 1/16/2019
-      Third release 1/21/2019
-      Release 4 - 1/23/2019
-      Release 5 - 1/25/2019
-      Release 6 - 2/7/2019 update to 0.8.0
-    </PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
-    <AssemblyVersion>1.0.7.0</AssemblyVersion>
-    <FileVersion>1.0.7.0</FileVersion>
-    <Version>1.0.7-preview5</Version>
+    <AssemblyVersion>1.0.8.0</AssemblyVersion>
+    <FileVersion>1.0.8.0</FileVersion>
+    <Version>1.0.8</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,9 +24,9 @@
 
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components" Version="5.0.0-preview.2.20167.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="5.0.0-preview.2.20167.3" />
-    <PackageReference Include="Mono.WebAssembly.Interop" Version="5.0.0-preview.2.20167.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Components" Version="5.0.0-preview.3.20215.14" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="5.0.0-preview.3.20215.14" />
+    <PackageReference Include="Mono.WebAssembly.Interop" Version="5.0.0-preview.3.20215.14" />
   </ItemGroup>
 
 </Project>
