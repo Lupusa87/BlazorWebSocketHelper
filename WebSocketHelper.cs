@@ -169,6 +169,8 @@ namespace BlazorWebSocketHelper
         public void InvokeOnMessage(string par_message)
         {
 
+            Console.WriteLine(par_message);
+
             BwsMessage b = new BwsMessage
             {
                 ID = GetNewIDFromLog(),
@@ -178,15 +180,18 @@ namespace BlazorWebSocketHelper
                 TransportType = TransportType
             };
 
+
+           
             if (DoLog)
             {
-                
+             
                 Log.Add(b);
-                
+               
                 if (Log.Count > LogMaxCount)
                 {
                     Log.RemoveAt(0);
                 }
+
             }
 
             

@@ -1,5 +1,4 @@
 using Microsoft.JSInterop;
-using Mono.WebAssembly.Interop;
 using System.Threading.Tasks;
 
 namespace BlazorWebSocketHelper
@@ -7,8 +6,16 @@ namespace BlazorWebSocketHelper
     public class BwsJsInterop
     {
         private IJSRuntime _JSRuntime;
-        public BwsJsInterop(IJSRuntime jsRuntime) => _JSRuntime = jsRuntime;
-        public static MonoWebAssemblyJSRuntime monoWebAssemblyJSRuntime = new MonoWebAssemblyJSRuntime();
+
+        private IJSUnmarshalledRuntime _jsUnmarshalledRuntime;
+
+        public BwsJsInterop(IJSRuntime jsRuntime)
+        {
+            _JSRuntime = jsRuntime;
+            _jsUnmarshalledRuntime = jsRuntime as IJSUnmarshalledRuntime;
+            StaticClass._jsUnmarshalledRuntime = _jsUnmarshalledRuntime;
+        }
+
 
         public ValueTask<string> Alert(string message)
         {
@@ -38,7 +45,7 @@ namespace BlazorWebSocketHelper
         public bool WsSend(string WsID, byte[] WsMessage)
         {
 
-            return monoWebAssemblyJSRuntime.InvokeUnmarshalled<string, byte[], bool>(
+            return _jsUnmarshalledRuntime.InvokeUnmarshalled<string, byte[], bool>(
                 "BwsJsFunctions.WsSendBinary",
                 WsID,
                 WsMessage);

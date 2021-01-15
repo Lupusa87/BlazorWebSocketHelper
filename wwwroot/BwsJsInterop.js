@@ -28,7 +28,6 @@ function WsOnMessage(e, wsID, dotnethelper) {
 
     }
     else {
-
         dotnethelper.invokeMethodAsync('InvokeOnMessage', e.data);
     }
 
